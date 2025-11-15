@@ -1,0 +1,33 @@
+{
+  "name": "wta-dashboard",
+  "version": "0.2.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "zmq": "tsx server/zmq-server.ts",
+    "proto:gen": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\proto\\generated --proto_path=..\\intercept-plugin-wta\\proto ..\\intercept-plugin-wta\\proto\\wta_messages.proto"
+  },
+  "dependencies": {
+    "next": "14.2.0",
+    "react": "^18.3.0",
+    "react-dom": "^18.3.0",
+    "zeromq": "^6.0.0-beta.20",
+    "ws": "^8.16.0",
+    "protobufjs": "^7.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@types/ws": "^8.5.10",
+    "typescript": "^5",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8",
+    "autoprefixer": "^10.0.1",
+    "tsx": "^4.7.0",
+    "ts-proto": "^1.165.0"
+  }
+}
