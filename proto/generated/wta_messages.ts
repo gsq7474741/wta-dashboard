@@ -7,7 +7,7 @@
 /* eslint-disable */
 import * as _m0 from "protobufjs/minimal";
 
-export const protobufPackage = "wta.proto";
+export const protobufPackage = "wta.pb";
 
 export enum PlatformRole {
   PLATFORM_ROLE_UNKNOWN = 0,
@@ -116,6 +116,20 @@ export interface AmmoState {
   rocket: number;
 }
 
+/** 弹夹详细信息 */
+export interface MagazineDetail {
+  /** 弹夹类名（如 "2Rnd_GBU12_LGB"） */
+  name: string;
+  /** 剩余弹药数 */
+  ammoCount: number;
+  /** 是否装载中 */
+  loaded: boolean;
+  /** 类型 */
+  type: number;
+  /** 位置（如 "vest", "uniform", "backpack"） */
+  location: string;
+}
+
 export interface PlatformState {
   id: number;
   role: PlatformRole;
@@ -128,6 +142,14 @@ export interface PlatformState {
   quantity: number;
   ammo: AmmoState | undefined;
   targetTypes: number[];
+  /** 平台类型名称（如 "B_UAV_02_dynamicLoadout_F"） */
+  platformType: string;
+  /** 弹夹详细信息列表 */
+  magazines: MagazineDetail[];
+  /** 剩余油量 (0.0-1.0) */
+  fuel: number;
+  /** 总体损伤 (0.0-1.0, 0=无损伤, 1=完全损毁) */
+  damage: number;
 }
 
 export interface TargetState {
@@ -137,6 +159,10 @@ export interface TargetState {
   alive: boolean;
   value: number;
   tier: number;
+  /** 目标类型名称（如 "预警雷达站"） */
+  targetType: string;
+  /** 前置目标ID列表（时序约束必需） */
+  prerequisiteTargets: number[];
 }
 
 /** 战场状态上报 */
@@ -382,6 +408,125 @@ export const AmmoState = {
   },
 };
 
+function createBaseMagazineDetail(): MagazineDetail {
+  return { name: "", ammoCount: 0, loaded: false, type: 0, location: "" };
+}
+
+export const MagazineDetail = {
+  encode(message: MagazineDetail, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.name !== "") {
+      writer.uint32(10).string(message.name);
+    }
+    if (message.ammoCount !== 0) {
+      writer.uint32(16).int32(message.ammoCount);
+    }
+    if (message.loaded !== false) {
+      writer.uint32(24).bool(message.loaded);
+    }
+    if (message.type !== 0) {
+      writer.uint32(32).int32(message.type);
+    }
+    if (message.location !== "") {
+      writer.uint32(42).string(message.location);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): MagazineDetail {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMagazineDetail();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.name = reader.string();
+          continue;
+        case 2:
+          if (tag !== 16) {
+            break;
+          }
+
+          message.ammoCount = reader.int32();
+          continue;
+        case 3:
+          if (tag !== 24) {
+            break;
+          }
+
+          message.loaded = reader.bool();
+          continue;
+        case 4:
+          if (tag !== 32) {
+            break;
+          }
+
+          message.type = reader.int32();
+          continue;
+        case 5:
+          if (tag !== 42) {
+            break;
+          }
+
+          message.location = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): MagazineDetail {
+    return {
+      name: isSet(object.name) ? globalThis.String(object.name) : "",
+      ammoCount: isSet(object.ammoCount) ? globalThis.Number(object.ammoCount) : 0,
+      loaded: isSet(object.loaded) ? globalThis.Boolean(object.loaded) : false,
+      type: isSet(object.type) ? globalThis.Number(object.type) : 0,
+      location: isSet(object.location) ? globalThis.String(object.location) : "",
+    };
+  },
+
+  toJSON(message: MagazineDetail): unknown {
+    const obj: any = {};
+    if (message.name !== "") {
+      obj.name = message.name;
+    }
+    if (message.ammoCount !== 0) {
+      obj.ammoCount = Math.round(message.ammoCount);
+    }
+    if (message.loaded !== false) {
+      obj.loaded = message.loaded;
+    }
+    if (message.type !== 0) {
+      obj.type = Math.round(message.type);
+    }
+    if (message.location !== "") {
+      obj.location = message.location;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<MagazineDetail>, I>>(base?: I): MagazineDetail {
+    return MagazineDetail.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<MagazineDetail>, I>>(object: I): MagazineDetail {
+    const message = createBaseMagazineDetail();
+    message.name = object.name ?? "";
+    message.ammoCount = object.ammoCount ?? 0;
+    message.loaded = object.loaded ?? false;
+    message.type = object.type ?? 0;
+    message.location = object.location ?? "";
+    return message;
+  },
+};
+
 function createBasePlatformState(): PlatformState {
   return {
     id: 0,
@@ -395,6 +540,10 @@ function createBasePlatformState(): PlatformState {
     quantity: 0,
     ammo: undefined,
     targetTypes: [],
+    platformType: "",
+    magazines: [],
+    fuel: 0,
+    damage: 0,
   };
 }
 
@@ -435,6 +584,18 @@ export const PlatformState = {
       writer.int32(v);
     }
     writer.ldelim();
+    if (message.platformType !== "") {
+      writer.uint32(98).string(message.platformType);
+    }
+    for (const v of message.magazines) {
+      MagazineDetail.encode(v!, writer.uint32(106).fork()).ldelim();
+    }
+    if (message.fuel !== 0) {
+      writer.uint32(117).float(message.fuel);
+    }
+    if (message.damage !== 0) {
+      writer.uint32(125).float(message.damage);
+    }
     return writer;
   },
 
@@ -532,6 +693,34 @@ export const PlatformState = {
           }
 
           break;
+        case 12:
+          if (tag !== 98) {
+            break;
+          }
+
+          message.platformType = reader.string();
+          continue;
+        case 13:
+          if (tag !== 106) {
+            break;
+          }
+
+          message.magazines.push(MagazineDetail.decode(reader, reader.uint32()));
+          continue;
+        case 14:
+          if (tag !== 117) {
+            break;
+          }
+
+          message.fuel = reader.float();
+          continue;
+        case 15:
+          if (tag !== 125) {
+            break;
+          }
+
+          message.damage = reader.float();
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -556,6 +745,12 @@ export const PlatformState = {
       targetTypes: globalThis.Array.isArray(object?.targetTypes)
         ? object.targetTypes.map((e: any) => globalThis.Number(e))
         : [],
+      platformType: isSet(object.platformType) ? globalThis.String(object.platformType) : "",
+      magazines: globalThis.Array.isArray(object?.magazines)
+        ? object.magazines.map((e: any) => MagazineDetail.fromJSON(e))
+        : [],
+      fuel: isSet(object.fuel) ? globalThis.Number(object.fuel) : 0,
+      damage: isSet(object.damage) ? globalThis.Number(object.damage) : 0,
     };
   },
 
@@ -594,6 +789,18 @@ export const PlatformState = {
     if (message.targetTypes?.length) {
       obj.targetTypes = message.targetTypes.map((e) => Math.round(e));
     }
+    if (message.platformType !== "") {
+      obj.platformType = message.platformType;
+    }
+    if (message.magazines?.length) {
+      obj.magazines = message.magazines.map((e) => MagazineDetail.toJSON(e));
+    }
+    if (message.fuel !== 0) {
+      obj.fuel = message.fuel;
+    }
+    if (message.damage !== 0) {
+      obj.damage = message.damage;
+    }
     return obj;
   },
 
@@ -613,12 +820,16 @@ export const PlatformState = {
     message.quantity = object.quantity ?? 0;
     message.ammo = (object.ammo !== undefined && object.ammo !== null) ? AmmoState.fromPartial(object.ammo) : undefined;
     message.targetTypes = object.targetTypes?.map((e) => e) || [];
+    message.platformType = object.platformType ?? "";
+    message.magazines = object.magazines?.map((e) => MagazineDetail.fromPartial(e)) || [];
+    message.fuel = object.fuel ?? 0;
+    message.damage = object.damage ?? 0;
     return message;
   },
 };
 
 function createBaseTargetState(): TargetState {
-  return { id: 0, kind: 0, pos: undefined, alive: false, value: 0, tier: 0 };
+  return { id: 0, kind: 0, pos: undefined, alive: false, value: 0, tier: 0, targetType: "", prerequisiteTargets: [] };
 }
 
 export const TargetState = {
@@ -641,6 +852,14 @@ export const TargetState = {
     if (message.tier !== 0) {
       writer.uint32(48).int32(message.tier);
     }
+    if (message.targetType !== "") {
+      writer.uint32(58).string(message.targetType);
+    }
+    writer.uint32(66).fork();
+    for (const v of message.prerequisiteTargets) {
+      writer.int32(v);
+    }
+    writer.ldelim();
     return writer;
   },
 
@@ -693,6 +912,30 @@ export const TargetState = {
 
           message.tier = reader.int32();
           continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.targetType = reader.string();
+          continue;
+        case 8:
+          if (tag === 64) {
+            message.prerequisiteTargets.push(reader.int32());
+
+            continue;
+          }
+
+          if (tag === 66) {
+            const end2 = reader.uint32() + reader.pos;
+            while (reader.pos < end2) {
+              message.prerequisiteTargets.push(reader.int32());
+            }
+
+            continue;
+          }
+
+          break;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -710,6 +953,10 @@ export const TargetState = {
       alive: isSet(object.alive) ? globalThis.Boolean(object.alive) : false,
       value: isSet(object.value) ? globalThis.Number(object.value) : 0,
       tier: isSet(object.tier) ? globalThis.Number(object.tier) : 0,
+      targetType: isSet(object.targetType) ? globalThis.String(object.targetType) : "",
+      prerequisiteTargets: globalThis.Array.isArray(object?.prerequisiteTargets)
+        ? object.prerequisiteTargets.map((e: any) => globalThis.Number(e))
+        : [],
     };
   },
 
@@ -733,6 +980,12 @@ export const TargetState = {
     if (message.tier !== 0) {
       obj.tier = Math.round(message.tier);
     }
+    if (message.targetType !== "") {
+      obj.targetType = message.targetType;
+    }
+    if (message.prerequisiteTargets?.length) {
+      obj.prerequisiteTargets = message.prerequisiteTargets.map((e) => Math.round(e));
+    }
     return obj;
   },
 
@@ -747,6 +1000,8 @@ export const TargetState = {
     message.alive = object.alive ?? false;
     message.value = object.value ?? 0;
     message.tier = object.tier ?? 0;
+    message.targetType = object.targetType ?? "";
+    message.prerequisiteTargets = object.prerequisiteTargets?.map((e) => e) || [];
     return message;
   },
 };
