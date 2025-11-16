@@ -8,7 +8,7 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "zmq": "tsx server/zmq-server.ts",
-    "proto:gen": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\proto\\generated --proto_path=..\\intercept-plugin-wta\\proto ..\\intercept-plugin-wta\\proto\\wta_messages.proto"
+    "proto:gen": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\proto\\generated --proto_path=..\\proto ..\\proto\\wta_messages.proto"
   },
   "dependencies": {
     "next": "14.2.0",
