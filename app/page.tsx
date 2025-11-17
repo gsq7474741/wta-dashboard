@@ -231,7 +231,66 @@ export default function Dashboard() {
                       <div>💥 Hit Prob: {(p.hitProb * 100).toFixed(0)}%</div>
                       <div>💰 Cost: {p.cost.toFixed(1)}</div>
                     </div>
-                    <div className="mt-2 pt-2 border-t border-gray-700">
+
+                    {/* 油量条 */}
+                    {p.fuel !== undefined && (
+                      <div className="mt-3 pt-2 border-t border-gray-700">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span>⛽ Fuel</span>
+                          <span>{(p.fuel * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all ${
+                              p.fuel > 0.5 ? 'bg-green-500' :
+                              p.fuel > 0.25 ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${p.fuel * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 损伤条 */}
+                    {p.damage !== undefined && (
+                      <div className="mt-2">
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span>🔴 Damage</span>
+                          <span>{(p.damage * 100).toFixed(0)}%</span>
+                        </div>
+                        <div className="w-full bg-gray-700 rounded-full h-2">
+                          <div 
+                            className={`h-2 rounded-full transition-all ${
+                              p.damage < 0.25 ? 'bg-green-500' :
+                              p.damage < 0.5 ? 'bg-yellow-500' :
+                              'bg-red-500'
+                            }`}
+                            style={{ width: `${p.damage * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 弹夹列表 */}
+                    {p.magazines && p.magazines.length > 0 && (
+                      <div className="mt-3 pt-2 border-t border-gray-700">
+                        <div className="text-xs text-gray-400 mb-2">📋 Magazines:</div>
+                        <div className="space-y-1 max-h-32 overflow-y-auto">
+                          {p.magazines.map((mag, idx) => (
+                            <div key={idx} className="text-xs bg-gray-700 rounded px-2 py-1 flex items-center justify-between">
+                              <div className="flex items-center space-x-1 flex-1">
+                                {mag.loaded && <span>🔫</span>}
+                                <span className="truncate">{mag.name}</span>
+                              </div>
+                              <span className="text-gray-400 ml-1">×{mag.ammoCount}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="mt-3 pt-2 border-t border-gray-700">
                       <div className="text-xs text-gray-400 mb-1">Ammunition:</div>
                       <div className="flex space-x-3 text-xs">
                         <span>🚀 {ammo.missile}</span>

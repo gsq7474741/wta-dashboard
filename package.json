@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start -p 3001",
     "lint": "next lint",
-    "zmq": "tsx server/zmq-server.ts",
+    "zmq": "cross-env LOG_LEVEL=DEBUG tsx server/zmq-server.ts",
     "proto:gen": "protoc --plugin=protoc-gen-ts_proto=.\\node_modules\\.bin\\protoc-gen-ts_proto.cmd --ts_proto_out=.\\proto\\generated --proto_path=..\\proto ..\\proto\\wta_messages.proto"
   },
   "dependencies": {
@@ -28,6 +28,7 @@
     "postcss": "^8",
     "autoprefixer": "^10.0.1",
     "tsx": "^4.7.0",
-    "ts-proto": "^1.165.0"
+    "ts-proto": "^1.165.0",
+    "cross-env": "^7.0.3"
   }
 }
